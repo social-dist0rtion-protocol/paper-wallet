@@ -3,6 +3,7 @@ const { Tx, helpers, Output, Outpoint } = require('leap-core');
 const Web3 = require('web3');
 const qr = require('qr-image');
 const base64url = require('base64url');
+//const jsdom = require("jsdom");
 
 function sleep(ms){
     return new Promise(resolve => {
@@ -163,4 +164,120 @@ function generateStickers(addresses, walletsDir, fileName = 'generated', perPage
     });
 }
 
-module.exports = { getBalance, sendFunds, generateWallet, generateStickers, sleep }
+function generateStickersHTML(addresses, walletsDir, fileName = 'generated', pos, cb) {
+    const perPage = pos.x.length * pos.y.length;
+    
+    if (addresses.length > perPage) {
+        throw new Error(`Max ${perPage} stickers will fit on page`);
+    }
+
+    const divStciker = (address, suffix, posX, posY) => {
+        return `
+        <div style="position:absolute;left:${posX};top:${posY};background-color:#FFFFFF;width:150px;height:150px;" >
+            <div style="position:absolute;left:10px;top:0px;font-family:sans-serif;font-weight:bolder;margin-top:5px;font-size:12px;color:#000000" >
+                ${address.substring(0,8)+"......"+address.substring(address.length-7)}
+            </div>
+            <img src="file://${walletsDir}/${address.substring(0,8)+suffix}"
+                style="position:absolute;left:0px;top:20px;width:150;height:150px"
+            />
+        </div>`;
+    }
+
+    const formHtml = (html) => {
+        return `<html>
+        <head>
+            <link href="https://fonts.googleapis.com/css?family=Limelight" rel="stylesheet">
+        </head>
+        <body style="font-family: 'Limelight', cursive;">
+        ` +
+        html + `
+        </body></html>`;
+    }
+
+    let html_priv = '';
+    let html_pub = '';
+    let n = 0;
+
+    for(let i = 0; i < pos.y.length; i++) {
+        for(let j = 0; j < pos.x.length; j++) {
+            html_priv = html_priv + divStciker(addresses[n], '-priv.png', pos.x[j], pos.y[i]);
+            html_pub = html_pub + divStciker(addresses[n], '.svg', pos.x[j], pos.y[i]);
+            n++;
+            if (n == addresses.length) break;
+        }
+        if (n == addresses.length) break;
+    }
+
+    html_priv = formHtml(html_priv);
+    html_pub = formHtml(html_pub);
+
+    console.log('------------priv-------------');
+    console.log(html_priv);
+    console.log('------------pub--------------');
+    console.log(html_pub);
+    console.log('-----------------------------');
+
+    let fs = require('fs');
+
+    let conversion = require("phantom-html-to-pdf")();
+    console.log("Generating PDF...")
+    conversion({
+        html: html_priv,
+        allowLocalFilesAccess: true,
+        phantomPath: require("phantomjs-prebuilt").path,
+        settings: {
+                javascriptEnabled : true,
+                resourceTimeout: 10000
+            },
+            paperSize: {
+                format: 'A4',
+                orientation: 'portrait',
+                margin: {
+                    top: "0in",
+                    left: "0in",
+                    right:"0in"
+                },
+            },
+    }, function(err, pdf) {
+        if (err) return console.log(err);
+        let output = fs.createWriteStream(`${walletsDir}/${fileName}-priv.pdf`);
+        //console.log(pdf.logs);
+        //console.log(pdf.numberOfPages);
+        // since pdf.stream is a node.js stream you can use it
+        // to save the pdf to a file (like in this example) or to
+        // respond an http request.
+        pdf.stream.pipe(output);
+        conversion.kill();
+        conversion({
+            html: html_pub,
+            allowLocalFilesAccess: true,
+            phantomPath: require("phantomjs-prebuilt").path,
+            settings: {
+                    javascriptEnabled : true,
+                    resourceTimeout: 10000
+                },
+                paperSize: {
+                    format: 'A4',
+                    orientation: 'portrait',
+                    margin: {
+                        top: "0in",
+                        left: "0in",
+                        right:"0in"
+                    },
+                },
+        }, function(err, pdf) {
+            if (err) return console.log(err);
+            let output = fs.createWriteStream(`${walletsDir}/${fileName}-pub.pdf`);
+            //console.log(pdf.logs);
+            //console.log(pdf.numberOfPages);
+            // since pdf.stream is a node.js stream you can use it
+            // to save the pdf to a file (like in this example) or to
+            // respond an http request.
+            pdf.stream.pipe(output);
+            conversion.kill();
+            cb();
+        });
+    });
+}
+
+module.exports = { getBalance, sendFunds, generateWallet, generateStickers, generateStickersHTML, sleep }

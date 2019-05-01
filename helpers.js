@@ -3,7 +3,6 @@ const { Tx, helpers, Output, Outpoint } = require('leap-core');
 const Web3 = require('web3');
 const qr = require('qr-image');
 const base64url = require('base64url');
-//const jsdom = require("jsdom");
 
 function sleep(ms){
     return new Promise(resolve => {
@@ -164,7 +163,7 @@ function generateStickers(addresses, walletsDir, fileName = 'generated', perPage
     });
 }
 
-function generateStickersHTML(addresses, walletsDir, fileName = 'generated', pos, cb) {
+function generateStickersHTML(addresses, walletsDir, fileName, pos, cb) {
     const perPage = pos.x.length * pos.y.length;
     
     if (addresses.length > perPage) {
@@ -211,11 +210,11 @@ function generateStickersHTML(addresses, walletsDir, fileName = 'generated', pos
     html_priv = formHtml(html_priv);
     html_pub = formHtml(html_pub);
 
-    console.log('------------priv-------------');
+    /*console.log('------------priv-------------');
     console.log(html_priv);
     console.log('------------pub--------------');
     console.log(html_pub);
-    console.log('-----------------------------');
+    console.log('-----------------------------');*/
 
     let fs = require('fs');
 

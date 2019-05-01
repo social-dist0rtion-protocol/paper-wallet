@@ -8,8 +8,8 @@ const HOWMANY = 20;
 const PATH = 'wallets';
 const BATCH = '0';
 const workDir = process.cwd();
-const positions = {
-    x:[50, 200, 350],
+const positions = { 
+    x:[50, 200, 350], //absolute X and Y positions for sticker elemnts on page
     y:[0 ,160, 450, 610]
 }
 

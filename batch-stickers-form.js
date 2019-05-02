@@ -38,29 +38,31 @@ async function generate() {
         sources_pub[i] = (""+PATH+"/"+name+"-pub.pdf");
     }
 
-    console.log('Merging private key QR codes');
-    merge(sources_priv,PATH + "/wallets-" + BATCH + "-priv.pdf",function(err){
-            if(err)
-            return console.log(err);
-            console.log('Success');
-            var i = sources_priv.length;
-            sources_priv.forEach(function(filepath){
-                console.log("Cleaning up "+filepath)
-                fs.unlinkSync(filepath);
-            });
-    });
+    if (pages > 1) {
+        console.log('Merging private key QR codes');
+        merge(sources_priv,PATH + "/wallets-" + BATCH + "-priv.pdf",function(err){
+                if(err)
+                return console.log(err);
+                console.log('Success');
+                var i = sources_priv.length;
+                sources_priv.forEach(function(filepath){
+                    console.log("Cleaning up "+filepath)
+                    fs.unlinkSync(filepath);
+                });
+        });
 
-    console.log('Merging address QR codes');
-    merge(sources_pub,PATH + "/wallets-" + BATCH + "-addr.pdf",function(err){
-            if(err)
-            return console.log(err);
-            console.log('Success');
-            var i = sources_pub.length;
-            sources_pub.forEach(function(filepath){
-                console.log("Cleaning up "+filepath)
-                fs.unlinkSync(filepath);
-            });
-    });
+        console.log('Merging address QR codes');
+        merge(sources_pub,PATH + "/wallets-" + BATCH + "-addr.pdf",function(err){
+                if(err)
+                return console.log(err);
+                console.log('Success');
+                var i = sources_pub.length;
+                sources_pub.forEach(function(filepath){
+                    console.log("Cleaning up "+filepath)
+                    fs.unlinkSync(filepath);
+                });
+        });
+    }
 }
 
 generate();

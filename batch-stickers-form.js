@@ -10,7 +10,19 @@ const BATCH = '0';
 const workDir = process.cwd();
 const positions = { 
     x:[50, 200, 350], //absolute X and Y positions for sticker elemnts on page
-    y:[0 ,160, 450, 610]
+    y:[0 ,170, 450, 620],
+    sizes: {
+        priv: {
+            font: 12,
+            height: 150,
+            width: 150
+        },
+        addr: {
+            font: 10,
+            height: 100,
+            width: 100
+        }
+    }
 }
 
 async function generate() {

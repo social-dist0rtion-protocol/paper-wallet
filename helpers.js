@@ -165,19 +165,22 @@ function generateStickers(addresses, walletsDir, fileName = 'generated', perPage
 
 function generateStickersHTML(addresses, walletsDir, fileName, pos, cb) {
     const perPage = pos.x.length * pos.y.length;
+    const elementWidth = Math.round(100 / pos.y.length);
     
     if (addresses.length > perPage) {
         throw new Error(`Max ${perPage} stickers will fit on page`);
     }
 
-    const divStciker = (address, suffix, posX, posY) => {
+    const divStciker = (address, suffix, posX, posY, isAddr = false) => {
+        let sizes = isAddr ? pos.sizes.addr : pos.sizes.priv;
+
         return `
-        <div style="position:absolute;left:${posX};top:${posY};background-color:#FFFFFF;width:150px;height:150px;" >
-            <div style="position:absolute;left:10px;top:0px;font-family:sans-serif;font-weight:bolder;margin-top:5px;font-size:12px;color:#000000" >
+        <div style="position:absolute;left:${posX};top:${posY};background-color:#FFFFFF;width:${elementWidth}%;height:${sizes.height}px;" >
+            <div style="position:realtive;text-align:center;font-family:sans-serif;font-weight:bolder;margin-top:5px;font-size:${sizes.font}px;color:#000000" >
                 ${address.substring(0,8)+"......"+address.substring(address.length-7)}
             </div>
             <img src="file://${walletsDir}/${address.substring(0,8)+suffix}"
-                style="position:absolute;left:0px;top:20px;width:150;height:150px"
+                style="display:block;margin-left:auto;margin-right:auto;width:${sizes.width}px;height:${sizes.height}px"
             />
         </div>`;
     }
@@ -199,8 +202,8 @@ function generateStickersHTML(addresses, walletsDir, fileName, pos, cb) {
 
     for(let i = 0; i < pos.y.length; i++) {
         for(let j = 0; j < pos.x.length; j++) {
-            html_priv = html_priv + divStciker(addresses[n], '-priv.png', pos.x[j], pos.y[i]);
-            html_pub = html_pub + divStciker(addresses[n], '.svg', pos.x[j], pos.y[i]);
+            html_priv = html_priv + divStciker(addresses[n], '-priv.png', pos.x[j], pos.y[i], false);
+            html_pub = html_pub + divStciker(addresses[n], '.svg', pos.x[j], pos.y[i], true);
             n++;
             if (n == addresses.length) break;
         }

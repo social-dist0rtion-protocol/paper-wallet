@@ -14,14 +14,14 @@ const positions = {
     y:[0 ,170, 450, 620],
     sizes: {
         priv: {
-            font: 12,
-            height: 150,
-            width: 150
+            font: 10,
+            height: 120,
+            width: 120
         },
         addr: {
-            font: 10,
-            height: 100,
-            width: 100
+            font: 8,
+            height: 75,
+            width: 75
         }
     }
 }

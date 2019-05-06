@@ -1,13 +1,13 @@
 # paperwallet
-Paper wallets to seed the [Burner Wallet](https://github.com/austintgriffith/burner-wallet) with private keys.
+Paper wallets to seed the [LeapDAO instances of Burner Wallet](https://github.com/leapdao/burner-wallet) with private keys.
 
 ![paperwallets](https://user-images.githubusercontent.com/2653167/51704894-6c7be780-1fd7-11e9-8bf9-09d9a55f6943.jpg)
 
 # install
 ```javascript
-git clone https://github.com/austintgriffith/paper-wallet
+git clone https://github.com/leapdao/paper-wallet
 cd paper-wallet
-npm i
+yarn
 ```
 
 # run
@@ -42,6 +42,22 @@ Finally... print, fold, cut, and glue your way to freedom!
 
 ![paperwalletprinted](https://user-images.githubusercontent.com/2653167/55584775-48790880-56e2-11e9-93b6-4034c2b0ff5d.jpg)
 
+# sticker generation
+
+It is possible to generate just QR code stickers instead of using templates. `batch-stickers.js` will generate them using template (`templatestickers*.html`) to place the stickers on page while `batch-stickers-cannes.js` (configured for Cannes film fetival demo) uses parameters configured inside the script to generate a page. 
+
+Configure `URL`, `HOWMANY`, `PATH` and `BATCH`. Additionaly `perPage` is configured in `batch-stickers.js` or `positions` in `batch-stickers-cannes.js`
+
+```
+node batch-stickers.js
+```
+or
+
+```
+node batch-stickers-cannes.js
+```
+
+
 # air dropping
 
 You will need a distribution account. I would suggest using a mnemonic you can remember in the Burner Wallet and then copy the private key the wallet generates. 
@@ -52,12 +68,19 @@ You will then pass this private key into the airdrop script within the command y
 echo "SENDING_PK=0xdeadbeef" > .env
 ```
 
-If this account has the necessary funds, it will drop whatever you specify in the `AMOUNT_OF_BURN_TO_SEND` and `AMOUNT_OF_XDAI_TO_SEND` to all `accounts` listed in your `addresses.txt` file:
+Options to configure:
+`provider` - link to Leap network RPC
+`tokenColor` - Color of dispensed token in Leap network
+`amountToSend` - How many tokens to send to each address
+`folder` - sub-folder with file of addresses
+`batch` - name of the batch (as used in batch generation script)
+
+If this account has the necessary funds, it will drop whatever you specify to all `accounts` listed in your `addresses-${batch}.txt` file:
 ```
 node airdrop.js
 ```
 
-Use the CONFIG options like `justChecking`, `dryRun`, `testRun` for more control and testing.
+Use the CONFIG options like `dryRun` for more control and testing.
 
 ![walletcutting](https://user-images.githubusercontent.com/2653167/51705234-4440b880-1fd8-11e9-93ed-93338376cfdc.jpg)
 

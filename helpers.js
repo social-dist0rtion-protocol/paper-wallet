@@ -42,13 +42,12 @@ async function sendFunds(from, to, amount, color, rpc) {
     return txHash;
 }
 
-function generateWallet(path = './wallets', batchName = '0') {
-    const URL = "https://sundai.io"
+function generateWallet(url, path = './wallets', batchName = '0') {
     const COMPRESS = true
     const AUTOPRINT = false
     const MINEFOR = false//"feeddeadbeef"
     const DISPLAYPK = false;
-    const web3 = new Web3(URL)
+    const web3 = new Web3(url);
     const workDir = process.cwd();
 
     let result = "";
@@ -69,9 +68,9 @@ function generateWallet(path = './wallets', batchName = '0') {
             return base64url(web3.utils.hexToBytes(pk));
         }
         let encoded = pkToUrl(PK);
-        pkLink = URL+"/pk#"+encoded;
+        pkLink = url+"/pk#"+encoded;
     } else {
-        pkLink = URL+"/pk#"+PK.replace("0x","");
+        pkLink = url+"/pk#"+PK.replace("0x","");
     }
     //console.log(pkLink)
     var private = qr.image(pkLink, { type: 'png', margin: 1 });
@@ -79,7 +78,7 @@ function generateWallet(path = './wallets', batchName = '0') {
     private.pipe(require('fs').createWriteStream(`${path}/${publicAddress.substring(0,8)}-priv.png`));
 
 
-    var public = qr.image(URL+"/"+publicAddress, { type: 'svg' });
+    var public = qr.image(url+"/"+publicAddress, { type: 'svg' });
     public.pipe(require('fs').createWriteStream(`${path}/${publicAddress.substring(0,8)}.svg`));
     //console.log("public.svg"+URL+"/"+publicAddress)
 

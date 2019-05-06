@@ -4,6 +4,7 @@ const asyncStickers = util.promisify(generateStickers);
 var merge = require('easy-pdf-merge');
 var fs = require('fs');
 
+const URL = "https://sundai.io"
 const HOWMANY = 100;
 const PATH = 'wallets';
 const BATCH = 'extra';
@@ -16,7 +17,7 @@ async function generate() {
     const pages = Math.ceil(HOWMANY / perPage);
 
     for (let i = 0; i < HOWMANY; i++) {
-        accounts.push(generateWallet(`./${PATH}`,BATCH));
+        accounts.push(generateWallet(URL, `./${PATH}`,BATCH));
     }
     let pageAccounts;
     let name;

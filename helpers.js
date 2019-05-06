@@ -74,7 +74,7 @@ function generateWallet(path = './wallets', batchName = '0') {
         pkLink = URL+"/pk#"+PK.replace("0x","");
     }
     //console.log(pkLink)
-    var private = qr.image(pkLink, { type: 'png' });
+    var private = qr.image(pkLink, { type: 'png', margin: 1 });
     var publicAddress = result.address;
     private.pipe(require('fs').createWriteStream(`${path}/${publicAddress.substring(0,8)}-priv.png`));
 

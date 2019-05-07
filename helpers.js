@@ -283,8 +283,8 @@ function generateStickersHTML(addresses, walletsDir, fileName, pos, cb) {
 
 function generateWithTemplate(address, suffix, ext, template, walletsDir, pos, page, cb) {
     const divQR = `
-    <img style="position:absolute;left:0px;top:0px;height:8.27in;width:3.94in;overflow:hidden" src="file://${template}"/> 
-        <div style="position:absolute;left:${pos.x};top:${pos.y};background-color:#FFFFFF;width:${pos.sizes.width}px;height:${pos.sizes.height}px;" >
+    <img style="position:absolute;left:0px;top:0px;height:${page.height}in;width:${page.width}in;overflow:hidden" src="file://${template}"/> 
+        <div style="position:absolute;left:${pos.x};top:${pos.y};background-color:#FFFFFF;width:${pos.sizes.width+10}px;height:${pos.sizes.height}px;" >
             <div style="position:realtive;text-align:center;font-family:sans-serif;font-weight:bolder;margin-top:5px;font-size:${pos.sizes.font}px;color:#000000" >
                 ${address.substring(0,8)+"......"+address.substring(address.length-7)}
             </div>

@@ -15,7 +15,7 @@ const templates = {
 };
 const positions = {
     priv: {
-        x:140,
+        x:155,
         y:270,
         sizes: {
             font: 10,
@@ -24,8 +24,8 @@ const positions = {
         }
     },
     addr: {
-        x:170,
-        y:330,
+        x:155,
+        y:350,
         sizes: {
             font: 9,
             height: 90,

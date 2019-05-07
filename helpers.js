@@ -283,6 +283,7 @@ function generateStickersHTML(addresses, walletsDir, fileName, pos, cb) {
 
 function generateWithTemplate(address, suffix, ext, template, walletsDir, pos, page, cb) {
     const divQR = `
+    <img style="position:absolute;left:0px;top:0px;height:8.27in;width:3.94in;overflow:hidden" src="file://${template}"/> 
         <div style="position:absolute;left:${pos.x};top:${pos.y};background-color:#FFFFFF;width:${pos.sizes.width}px;height:${pos.sizes.height}px;" >
             <div style="position:realtive;text-align:center;font-family:sans-serif;font-weight:bolder;margin-top:5px;font-size:${pos.sizes.font}px;color:#000000" >
                 ${address.substring(0,8)+"......"+address.substring(address.length-7)}
@@ -290,11 +291,6 @@ function generateWithTemplate(address, suffix, ext, template, walletsDir, pos, p
             <img src="file://${walletsDir}/${address.substring(0,8)+suffix+ext}"
                 style="display:block;margin-left:auto;margin-right:auto;width:${pos.sizes.width}px;height:${pos.sizes.height}px"
             />
-        </div>`;
-
-    const divTemplate = `
-        <div style="background-image:url('${template}');background-size:cover;height:${page.height};width:${page.width};overflow:hidden;overflow:hidden" >
-            ${divQR}
         </div>`;
     
 
@@ -331,7 +327,7 @@ function generateWithTemplate(address, suffix, ext, template, walletsDir, pos, p
             </style>
         </head>
         <body>
-            ${divTemplate}
+            ${divQR}
         </body></html>`;
     
     

@@ -281,4 +281,96 @@ function generateStickersHTML(addresses, walletsDir, fileName, pos, cb) {
     });
 }
 
-module.exports = { getBalance, sendFunds, generateWallet, generateStickers, generateStickersHTML, sleep }
+function generateWithTemplate(address, suffix, ext, template, walletsDir, pos, page, cb) {
+    const divQR = `
+        <div style="position:absolute;left:${pos.x};top:${pos.y};background-color:#FFFFFF;width:${pos.sizes.width}px;height:${pos.sizes.height}px;" >
+            <div style="position:realtive;text-align:center;font-family:sans-serif;font-weight:bolder;margin-top:5px;font-size:${pos.sizes.font}px;color:#000000" >
+                ${address.substring(0,8)+"......"+address.substring(address.length-7)}
+            </div>
+            <img src="file://${walletsDir}/${address.substring(0,8)+suffix+ext}"
+                style="display:block;margin-left:auto;margin-right:auto;width:${pos.sizes.width}px;height:${pos.sizes.height}px"
+            />
+        </div>`;
+
+    const divTemplate = `
+        <div style="background-image:url('${template}');background-size:cover;height:${page.height};width:${page.width};overflow:hidden;overflow:hidden" >
+            ${divQR}
+        </div>`;
+    
+
+    const html = `<html>
+        <head>
+            <link href="https://fonts.googleapis.com/css?family=Limelight" rel="stylesheet">
+            <style>
+                html {
+                    height: 0;
+                    transform-origin: 0 0;
+                    -webkit-transform-origin: 0 0;
+                    transform: scale(0.8666);
+                    -webkit-transform: scale(0.8666);
+                }
+
+                body {
+                    width: ${page.width};
+                    height: ${page.height};
+                    padding: 0;
+                    margin: 0;
+                    font-family: 'Limelight', cursive;
+                    transform-origin: 0 0;
+                    -webkit-transform-origin: 0 0;
+                    transform: scale(0.8666);
+                    -webkit-transform: scale(0.8666);
+                }
+                
+                .page {
+                    width: ${page.width};
+                    height: ${page.height};
+                    padding: 0;
+                    margin: 0;
+                }
+            </style>
+        </head>
+        <body>
+            ${divTemplate}
+        </body></html>`;
+    
+    
+
+    /*console.log('------------html-------------');
+    console.log(html);
+    console.log('-----------------------------');*/
+    let fs = require('fs');
+
+    let conversion = require("phantom-html-to-pdf")();
+    console.log("Generating PDF...")
+    conversion({
+        html: html,
+        allowLocalFilesAccess: true,
+        phantomPath: require("phantomjs-prebuilt").path,
+        settings: {
+                javascriptEnabled : true,
+                resourceTimeout: 10000
+            },
+        paperSize: {
+            width: page.width,
+            height: page.height,
+            margin: "0px",
+            headerHeight: "0px",
+            footerHeight: "0px"
+        },
+        fitToPage: true
+    }, function(err, pdf) {
+        if (err) return console.log(err);
+        let output = fs.createWriteStream(`${walletsDir}/${address.substring(0,8)+suffix}.pdf`);
+        //console.log(pdf.logs);
+        //console.log(pdf.numberOfPages);
+        // since pdf.stream is a node.js stream you can use it
+        // to save the pdf to a file (like in this example) or to
+        // respond an http request.
+        pdf.stream.pipe(output);
+        conversion.kill();
+        cb();
+    });
+}
+
+module.exports = { getBalance, sendFunds, generateWallet, generateStickers, generateStickersHTML, generateWithTemplate,sleep }

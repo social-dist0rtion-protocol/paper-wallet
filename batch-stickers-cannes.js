@@ -4,7 +4,7 @@ const asyncStickers = util.promisify(generateStickersHTML);
 var merge = require('easy-pdf-merge');
 var fs = require('fs');
 
-const URL = "https://cannes.motion.ooo/";
+const URL = "https://cannes.motion.ooo";
 const HOWMANY = 20;
 const PATH = 'wallets';
 const BATCH = '0';

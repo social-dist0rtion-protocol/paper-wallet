@@ -5,7 +5,7 @@ var merge = require('easy-pdf-merge');
 var fs = require('fs');
 
 const URL = "https://cannes.motion.ooo";
-const HOWMANY = 20;
+const HOWMANY = 100;
 const PATH = 'wallets';
 const BATCH = '0';
 const workDir = process.cwd();
@@ -15,13 +15,13 @@ const positions = {
     sizes: {
         priv: {
             font: 10,
-            height: 120,
-            width: 120
+            height: 136,
+            width: 136
         },
         addr: {
-            font: 8,
-            height: 75,
-            width: 75
+            font: 9,
+            height: 95,
+            width: 95
         }
     }
 }

@@ -35,6 +35,11 @@ Then, edit `HOWMANY` in the `batch.js` and run it:
 ```
 node batch.js
 ```
+Also possible to generate without template (update background picture and sizes/positions of QR codes inside the script):
+```
+node batch-cannes.js
+```
+
 This will generate a file called `wallets.pdf` and also `addresses.txt` for airdropping.
 
 ![image](https://user-images.githubusercontent.com/2653167/55583840-18306a80-56e0-11e9-80ef-16d177b415fa.png)

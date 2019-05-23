@@ -7,16 +7,16 @@ const fs = require("fs");
 const { sendFunds, getBalance, sleep } = require ('./helpers');
 
 const CONFIG = {
-  dryRun: false, //Tells you what it would do without actually sending any txs
-  provider: 'https://mainnet-node.leapdao.org',
+  dryRun: true, //Tells you what it would do without actually sending any txs
+  provider: 'https://staging-testnet.leapdao.org/rpc',
   dispenser: { 
     priv: process.env.SENDING_PK,
     address: "0x"+ethereumjsutil.privateToAddress(process.env.SENDING_PK).toString('hex') 
   },
-  tokenColor: 2,
-  amountToSend: '11000000000000000000'
+  tokenColor: 1,
+  amountToSend: '2000000000000000000'
 };
-const folder = 'wallets-conf';
+const folder = 'wallets';
 const batch = '0';
 
 

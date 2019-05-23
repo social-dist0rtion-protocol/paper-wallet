@@ -4,6 +4,6 @@ private.png
 addresses.txt
 node_modules
 generated*
-*.svg
+public.svg
 wallets*
 pricelist

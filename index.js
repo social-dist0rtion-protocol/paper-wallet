@@ -6,7 +6,7 @@ const URL = "https://sundai.io"
 const COMPRESS = true
 const AUTOPRINT = false
 const MINEFOR = false//"feeddeadbeef"
-const DISPLAYPK = false;
+const DISPLAYPK = true;
 var web3 = new Web3(URL)
 const workDir = process.cwd();
 

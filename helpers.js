@@ -1,8 +1,13 @@
 const JSBI = require('jsbi');
-const { Tx, helpers, Output, Outpoint } = require('leap-core');
+const { Tx, helpers, Input, Output, Outpoint } = require('leap-core');
 const Web3 = require('web3');
 const qr = require('qr-image');
 const base64url = require('base64url');
+const utils = require('ethereumjs-util');
+
+function replaceAll(str, find, replace) {
+    return str.replace(new RegExp(find, 'g'), replace.replace('0x', ''));
+}
 
 function sleep(ms){
     return new Promise(resolve => {
@@ -16,6 +21,18 @@ async function getBalance(address, color, rpc) {
         return (unspent.output.color === color) ? JSBI.add(sum, JSBI.BigInt(unspent.output.value)) : sum}, JSBI.BigInt(0));
 
     return balance;
+}
+
+async function getUtxos(address, color, rpc) {
+    const utxos = (await rpc.send('plasma_unspent', [address]))
+    .filter(utxo => 
+      utxo.output.color === color  
+    ).map(utxo => ({
+      outpoint: Outpoint.fromRaw(utxo.outpoint),
+      output: Output.fromJSON(utxo.output),
+    }));
+
+    return utxos;
 }
 
 async function sendFunds(from, to, amount, color, rpc) {
@@ -369,4 +386,104 @@ function generateWithTemplate(address, suffix, ext, template, walletsDir, pos, p
     });
 }
 
-module.exports = { getBalance, sendFunds, generateWallet, generateStickers, generateStickersHTML, generateWithTemplate,sleep }
+async function breed(to, queenId, utxoNum, color, data, wallet) {
+    const BREED_GAS_COST = JSBI.BigInt(12054948 + 2148176 + 545280 - 246784 + 556 - 2148176);
+    const { condAddr, script } = await getBreedCond(color, wallet.provider);
+  
+    const queenUtxos = await getUtxos(condAddr, color, wallet.provider);
+    // todo: better selection, check at least one
+    const queenUtxo = queenUtxos[utxoNum];
+    console.log("ID:", queenUtxo.output.data);
+    const counter = Buffer.from(queenUtxo.output.data.replace('0x', ''), 'hex').readUInt32BE(28);
+    const buffer2 = Buffer.alloc(32, 0);
+    buffer2.writeUInt32BE(counter + 1, 28);
+    const breedCounter = `0x${buffer2.toString('hex')}`;
+  
+    
+    const gasBalance = await getBalance(condAddr, 0, wallet.provider);
+    if (gasBalance < BREED_GAS_COST) throw new Error (`Not enough gas for breeding. Need: ${BREED_GAS_COST}, balance: ${gasBalance}`);
+    const gasUtxos = await getUtxos(condAddr, 0, wallet.provider);
+    // todo: finish multiple gas utxos as inputs
+    /*let gasInputs = [];
+    for (let i = 0; i < gasUtxos.length; i++) {
+        gasInputs.push(
+            new Input({
+                prevout: gasUtxos[i].outpoint,
+                script,
+              })
+        );
+    } */
+    //console.log(gasInputs); 
+    //console.log(gasUtxos);
+    const gasUtxo = gasUtxos[0];
+  
+    const buffer = Buffer.alloc(64, 0);
+    buffer.write(queenId.replace('0x', ''), 0, 'hex');
+    buffer.write(queenUtxo.output.data.replace('0x', ''), 32, 'hex');
+    const predictedId = utils.keccak256(buffer).toString('hex');
+    
+    //Gas cost debug:
+    //console.log(String(gasUtxo.output.value));
+    //console.log(String(BREED_GAS_COST));
+    //console.log(String(JSBI.subtract(gasUtxo.output.value, BREED_GAS_COST)));
+  
+    const condition = Tx.spendCond(
+      [
+        //...gasInputs,
+        new Input({
+            prevout: gasUtxo.outpoint,
+            script,
+        }),
+        new Input({
+          prevout: queenUtxo.outpoint,
+        }),
+      ],
+      [
+        new Output(
+          queenId,
+          condAddr,
+          color,
+          breedCounter
+        ),
+        new Output(
+          `0x${predictedId}`,
+          to,
+          color,
+          data,
+        ),
+        new Output(JSBI.subtract(gasUtxo.output.value, BREED_GAS_COST), condAddr, 0),
+      ]
+    );
+  
+    const msgData = `0x451da9f9${queenId.replace('0x', '')}000000000000000000000000${to.replace('0x', '')}${data.replace('0x', '')}`;
+  
+    condition.inputs[0].setMsgData(msgData);
+    condition.signAll(wallet.privateKey);
+  
+    // use this for testing / debugging
+    const rsp = await wallet.provider.send('checkSpendingCondition', [condition.hex()]);
+    if (rsp.error) console.log(JSON.stringify(rsp.error));
+  
+    const txHash = await wallet.provider.send('eth_sendRawTransaction', [condition.hex()]);
+    console.log('txHash:', txHash);
+
+    return txHash;
+}
+
+async function getBreedCond(color, rpc) {
+    const NST_COLOR_BASE = 49153;
+    const BREED_COND = '6080604052348015600f57600080fd5b5060043610602b5760e060020a6000350463451da9f981146030575b600080fd5b605f60048036036060811015604457600080fd5b50803590600160a060020a0360208201351690604001356061565b005b6040805160e060020a63451da9f902815260048101859052600160a060020a038416602482015260448101839052905173123333333333333333333333333333333333332191829163451da9f99160648082019260009290919082900301818387803b15801560cf57600080fd5b505af115801560e2573d6000803e3d6000fd5b505050505050505056fea165627a7a723058203741630497cebbe2163c43c04a87231069b1c986e2ef2264fe0f43f452c66dc60029';
+    const TOKEN_TEMPLATE = '1233333333333333333333333333333333333321';
+
+    const colors = await rpc.send('plasma_getColors', [false, true]);
+    const tokenAddr = colors[color - NST_COLOR_BASE].replace('0x', '').toLowerCase();
+    console.log('ta: ', tokenAddr);
+    const tmp = replaceAll(BREED_COND, TOKEN_TEMPLATE, tokenAddr);
+    const script = Buffer.from(tmp, 'hex');
+    const scriptHash = utils.ripemd160(script);
+    const condAddr = `0x${scriptHash.toString('hex')}`;
+    
+    return { condAddr, script };
+}
+
+module.exports = { getBalance, sendFunds, generateWallet, generateStickers, generateStickersHTML, generateWithTemplate, sleep , breed, getBreedCond, getUtxos }

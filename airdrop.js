@@ -7,7 +7,7 @@ const fs = require("fs");
 const { sendFunds, getBalance, sleep } = require ('./helpers');
 
 const CONFIG = {
-  dryRun: process.env.DRY_RUN || false, //Tells you what it would do without actually sending any txs
+  dryRun: JSON.parse(process.env.DRY_RUN) || false, //Tells you what it would do without actually sending any txs
   provider: 'https://testnet-node.leapdao.org',
   dispenser: { 
     priv: process.env.SENDING_PK,
@@ -17,7 +17,7 @@ const CONFIG = {
   amountToSend: '2000000000000000000'
 };
 const folder = 'wallets';
-const batch = '0';
+const batch = 'usb';
 
 
 //use this to debug CONFIG

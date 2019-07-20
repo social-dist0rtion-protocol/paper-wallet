@@ -31,13 +31,13 @@ If you want to make a large batch of wallets and merge them into a single pdf fo
 
 First, get your `template.html` looking right.
 
-Then, edit `HOWMANY` in the `batch.js` and run it:
+Then, edit `HOWMANY` in the `batch-austin.js` (original version from Austin Griffin) and run it:
 ```
-node batch.js
+node batch-austin.js
 ```
 Also possible to generate without template (update background picture and sizes/positions of QR codes inside the script):
 ```
-node batch-cannes.js
+node batch.js
 ```
 
 This will generate a file called `wallets.pdf` and also `addresses.txt` for airdropping.
@@ -50,9 +50,9 @@ Finally... print, fold, cut, and glue your way to freedom!
 
 # sticker generation
 
-It is possible to generate just QR code stickers instead of using templates. `batch-stickers.js` will generate them using template (`templatestickers*.html`) to place the stickers on page while `batch-stickers-cannes.js` (configured for Cannes film fetival demo) uses parameters configured inside the script to generate a page. 
+It is possible to generate just QR code stickers instead of using templates. `batch-stickers-tmpl.js` will generate them using template (`templatestickers*.html`) to place the stickers on page while `batch-stickers-gen.js` uses parameters configured inside the script to generate a page. 
 
-Configure `URL`, `HOWMANY`, `PATH` and `BATCH`. Additionaly `perPage` is configured in `batch-stickers.js` or `positions` in `batch-stickers-cannes.js`
+Configure `URL`, `HOWMANY`, `PATH` and `BATCH`. Additionaly `perPage` is configured in `batch-stickers-tmpl.js` or `positions` in `batch-stickers-gen.js`
 
 ```
 node batch-stickers.js
@@ -65,6 +65,9 @@ node batch-stickers-cannes.js
 
 
 # air dropping
+
+`airdrop.js` - For droping ERC20
+`airdrop_nft.js` - For breeding NFTs using breeding conditions and distributing them
 
 You will need a distribution account. I would suggest using a mnemonic you can remember in the Burner Wallet and then copy the private key the wallet generates. 
 

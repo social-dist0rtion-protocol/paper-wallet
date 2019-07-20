@@ -470,39 +470,6 @@ async function breed(to, queenId, utxoNum, color, data, wallet, dryRun = false) 
         data, 
         wallet.privateKey
     );
-
-    /*const condition = Tx.spendCond(
-        [
-          //...gasInputs,
-          new Input({
-              prevout: gasUtxo.outpoint,
-              script,
-          }),
-          new Input({
-            prevout: queenUtxo.outpoint,
-          }),
-        ],
-        [
-          new Output(
-            queenId,
-            condAddr,
-            color,
-            breedCounter
-          ),
-          new Output(
-            `0x${predictedId}`,
-            to,
-            color,
-            data,
-          ),
-          new Output(JSBI.subtract(gasUtxo.output.value, BREED_GAS_COST), condAddr, 0),
-        ]
-    );
-    
-    const msgData = `0x451da9f9${queenId.replace('0x', '')}000000000000000000000000${to.replace('0x', '')}${data.replace('0x', '')}`;
-    
-    condition.inputs[0].setMsgData(msgData);
-    condition.signAll(wallet.privateKey);*/
   
     let rsp = await wallet.provider.send('checkSpendingCondition', [condition.hex()]);
     //If gas price is not correct try to recreate with correct price

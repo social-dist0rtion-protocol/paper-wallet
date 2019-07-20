@@ -386,7 +386,21 @@ function generateWithTemplate(address, suffix, ext, template, walletsDir, pos, p
     });
 }
 
-async function breed(to, queenId, utxoNum, color, data, wallet) {
+function formBreedTx(inputs, outputs, to, queenId, data, priv){
+    const condition = Tx.spendCond(
+        inputs,
+        outputs
+      );
+    
+    const msgData = `0x451da9f9${queenId.replace('0x', '')}000000000000000000000000${to.replace('0x', '')}${data.replace('0x', '')}`;
+    
+    condition.inputs[0].setMsgData(msgData);
+    condition.signAll(priv);
+
+    return condition;
+}
+
+async function breed(to, queenId, utxoNum, color, data, wallet, dryRun = false) {
     const BREED_GAS_COST = JSBI.BigInt(12054948 + 2148176 + 545280 - 246784 + 556 - 2148176);
     const { condAddr, script } = await getBreedCond(color, wallet.provider);
   
@@ -427,41 +441,84 @@ async function breed(to, queenId, utxoNum, color, data, wallet) {
     //console.log(String(BREED_GAS_COST));
     //console.log(String(JSBI.subtract(gasUtxo.output.value, BREED_GAS_COST)));
   
-    const condition = Tx.spendCond(
-      [
-        //...gasInputs,
-        new Input({
-            prevout: gasUtxo.outpoint,
-            script,
-        }),
-        new Input({
-          prevout: queenUtxo.outpoint,
-        }),
-      ],
-      [
-        new Output(
-          queenId,
-          condAddr,
-          color,
-          breedCounter
-        ),
-        new Output(
-          `0x${predictedId}`,
-          to,
-          color,
-          data,
-        ),
-        new Output(JSBI.subtract(gasUtxo.output.value, BREED_GAS_COST), condAddr, 0),
-      ]
+    const gasInput = new Input({
+        prevout: gasUtxo.outpoint,
+        script,
+    });
+    const queenInput = new Input({
+        prevout: queenUtxo.outpoint,
+    });
+    const queenOutput = new Output(
+        queenId,
+        condAddr,
+        color,
+        breedCounter
     );
-  
+    const workerOutput = new Output(
+        `0x${predictedId}`,
+        to,
+        color,
+        data,
+    );
+    const gasOutput = new Output(JSBI.subtract(gasUtxo.output.value, BREED_GAS_COST), condAddr, 0);
+
+    const condition = formBreedTx(
+        [gasInput, queenInput], 
+        [queenOutput, workerOutput, gasOutput], 
+        to, 
+        queenId, 
+        data, 
+        wallet.privateKey
+    );
+
+    /*const condition = Tx.spendCond(
+        [
+          //...gasInputs,
+          new Input({
+              prevout: gasUtxo.outpoint,
+              script,
+          }),
+          new Input({
+            prevout: queenUtxo.outpoint,
+          }),
+        ],
+        [
+          new Output(
+            queenId,
+            condAddr,
+            color,
+            breedCounter
+          ),
+          new Output(
+            `0x${predictedId}`,
+            to,
+            color,
+            data,
+          ),
+          new Output(JSBI.subtract(gasUtxo.output.value, BREED_GAS_COST), condAddr, 0),
+        ]
+    );
+    
     const msgData = `0x451da9f9${queenId.replace('0x', '')}000000000000000000000000${to.replace('0x', '')}${data.replace('0x', '')}`;
-  
+    
     condition.inputs[0].setMsgData(msgData);
-    condition.signAll(wallet.privateKey);
+    condition.signAll(wallet.privateKey);*/
   
-    // use this for testing / debugging
-    const rsp = await wallet.provider.send('checkSpendingCondition', [condition.hex()]);
+    let rsp = await wallet.provider.send('checkSpendingCondition', [condition.hex()]);
+    //If gas price is not correct try to recreate with correct price
+    if (rsp.error && rsp.error.split("\"").slice(-4)[0] != String(BREED_GAS_COST)) {
+        console.log('Adjusting gas price');
+        const conditionAdj = formBreedTx(
+            [gasInput, queenInput], 
+            [queenOutput, workerOutput, new Output(JSBI.BigInt(rsp.error.split("\"").slice(-4)[0]), condAddr, 0)], 
+            to, 
+            queenId, 
+            data, 
+            wallet.privateKey
+        );
+        rsp = await wallet.provider.send('checkSpendingCondition', [conditionAdj.hex()]);
+    }
+    if (dryRun) return rsp.error ? rsp.error : 'Check passed'; //Do not send transaction in dry run mode
     if (rsp.error) console.log(JSON.stringify(rsp.error));
   
     const txHash = await wallet.provider.send('eth_sendRawTransaction', [condition.hex()]);

@@ -462,7 +462,7 @@ async function breed(to, queenId, utxoNum, color, data, wallet, dryRun = false) 
     );
     const gasOutput = new Output(JSBI.subtract(gasUtxo.output.value, BREED_GAS_COST), condAddr, 0);
 
-    const condition = formBreedTx(
+    let condition = formBreedTx(
         [gasInput, queenInput], 
         [queenOutput, workerOutput, gasOutput], 
         to, 
@@ -475,7 +475,7 @@ async function breed(to, queenId, utxoNum, color, data, wallet, dryRun = false) 
     //If gas price is not correct try to recreate with correct price
     if (rsp.error && rsp.error.split("\"").slice(-4)[0] != String(BREED_GAS_COST)) {
         console.log('Adjusting gas price');
-        const conditionAdj = formBreedTx(
+        condition = formBreedTx(
             [gasInput, queenInput], 
             [queenOutput, workerOutput, new Output(JSBI.BigInt(rsp.error.split("\"").slice(-4)[0]), condAddr, 0)], 
             to, 
@@ -483,7 +483,7 @@ async function breed(to, queenId, utxoNum, color, data, wallet, dryRun = false) 
             data, 
             wallet.privateKey
         );
-        rsp = await wallet.provider.send('checkSpendingCondition', [conditionAdj.hex()]);
+        rsp = await wallet.provider.send('checkSpendingCondition', [condition.hex()]);
     }
     if (dryRun) return rsp.error ? rsp.error : 'Check passed'; //Do not send transaction in dry run mode
     if (rsp.error) console.log(JSON.stringify(rsp.error));

@@ -8,20 +8,20 @@ const { breed, getUtxos, getBreedCond, sleep } = require ('./helpers');
 
 const NST_COLOR_BASE = 49153;
 const CONFIG = {
-  dryRun: process.env.DRY_RUN || false, //Tells you what it would do without actually sending any txs
+  dryRun: JSON.parse(process.env.DRY_RUN) || false, //Tells you what it would do without actually sending any txs
   provider: 'https://testnet-node.leapdao.org',
   dispenser: { 
     priv: process.env.SENDING_PK,
     address: "0x"+ethereumjsutil.privateToAddress(process.env.SENDING_PK).toString('hex') 
   },
   tokenColor: parseInt(process.env.COLOR) || NST_COLOR_BASE,
-  queenUtxoNum: process.env.QUEEN_UTXO || 0,
-  //queenId: '0xcbb18d83c09c99d8cfb5f0fad6febfb0d9a41fac9b165399982e43528e7c69db', //USB
-  queenId: '0xa1f5da38474f60e5684a1e511e4668ff4f121c1bf4272cc129155fd2b88171a3',  //USA
+  queenUtxoNum: parseInt(process.env.QUEEN_UTXO) || 0,
+  queenId: '0xcbb18d83c09c99d8cfb5f0fad6febfb0d9a41fac9b165399982e43528e7c69db', //USB
+  //queenId: '0xa1f5da38474f60e5684a1e511e4668ff4f121c1bf4272cc129155fd2b88171a3',  //USA
   initData: "0x0000000000000000000000000000000000000000000000000000000000000000"
 };
 const folder = 'wallets';
-const batch = 'usa';
+const batch = 'usb';
 
 
 //use this to debug CONFIG
@@ -64,8 +64,8 @@ async function main() {
       console.log('   Address already has tokens(', utxos.length, '). Skipping.');
       continue;
     }
-    if (!CONFIG.dryRun) {
-      txHash = await breed(accounts[i], CONFIG.queenId, CONFIG.queenUtxoNum, CONFIG.tokenColor, CONFIG.initData, dispenserWallet);
+    txHash = await breed(accounts[i], CONFIG.queenId, CONFIG.queenUtxoNum, CONFIG.tokenColor, CONFIG.initData, dispenserWallet, CONFIG.dryRun);
+    if (!CONFIG.dryRun) {   
       for(let i = 0; i <= 5; i++) {
         await sleep(1000);
         txReceipt = await dispenserWallet.provider.send("eth_getTransactionReceipt", [txHash]);   
@@ -78,9 +78,8 @@ async function main() {
         console.log('   Failed! Expected 1 token, actual: ', utxos.length);
       }
     } else {
-      console.log(' Dry run mode enabled! Will only check condition. Result:');
-      const msg = await breed(accounts[i], CONFIG.queenId, CONFIG.queenUtxoNum, CONFIG.tokenColor, CONFIG.initData, dispenserWallet, true);
-      console.log('  ', msg);
+      console.log(' Dry run mode enabled! Condition checked but not sent. Result:');
+      console.log('  ', txHash);
     }
   }
 }

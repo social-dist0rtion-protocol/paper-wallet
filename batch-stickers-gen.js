@@ -4,10 +4,10 @@ const asyncStickers = util.promisify(generateStickersHTML);
 var merge = require('easy-pdf-merge');
 var fs = require('fs');
 
-const URL = "https://cannes.motion.ooo";
-const HOWMANY = 100;
+const URL = "https://toco2.leap.rocks";
+const HOWMANY = 25;
 const PATH = 'wallets';
-const BATCH = '0';
+const BATCH = 'usa';
 const workDir = process.cwd();
 const positions = { 
     x:[50, 200, 350], //absolute X and Y positions for sticker elemnts on page

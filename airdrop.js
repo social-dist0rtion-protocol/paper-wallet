@@ -7,7 +7,7 @@ const fs = require("fs");
 const { sendFunds, getBalance, sleep } = require ('./helpers');
 
 const CONFIG = {
-  dryRun: true, //Tells you what it would do without actually sending any txs
+  dryRun: process.env.DRY_RUN || false, //Tells you what it would do without actually sending any txs
   provider: 'https://testnet-node.leapdao.org',
   dispenser: { 
     priv: process.env.SENDING_PK,

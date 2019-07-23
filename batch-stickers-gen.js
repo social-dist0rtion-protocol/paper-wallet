@@ -4,7 +4,7 @@ const asyncStickers = util.promisify(generateStickersHTML);
 var merge = require('easy-pdf-merge');
 var fs = require('fs');
 
-const URL = "https://toco2.leap.rocks";
+const URL = "https://planeta.leap.rocks";
 const HOWMANY = 25;
 const PATH = 'wallets';
 const BATCH = 'usa';

@@ -14,7 +14,8 @@ const CONFIG = {
     address: "0x"+ethereumjsutil.privateToAddress(process.env.SENDING_PK).toString('hex') 
   },
   tokenColor: 3,
-  amountToSend: '2000000000000000000'
+  amountToSend: '1000000000000000000',
+  topUp: false //use this for adding funds to already funded wallets (account will not be checked if it has funds or not)
 };
 const folder = 'wallets';
 const batch = 'usb';
@@ -49,7 +50,7 @@ async function main() {
   for(let i = 0; i < accounts.length; i++) {
     console.log(i, 'Dispensing', CONFIG.amountToSend, 'tokens to', accounts[i]);
     balance = await getBalance(accounts[i], CONFIG.tokenColor, rpc);
-    if (String(balance) !== '0') {
+    if (!CONFIG.topUp && String(balance) !== '0') {
         console.log('   Address already funded(', String(balance), '). Skipping.');
         continue;
     }
@@ -59,12 +60,13 @@ async function main() {
         await sleep(1000);
         txReceipt = await rpc.send("eth_getTransactionReceipt", [txHash]);   
         if(txReceipt) break;
-      }   
+      }
+      const expectedBalance = topUp ? String(JSBI.add(balance, JSBI.BigInt(CONFIG.amountToSend))) : CONFIG.amountToSend;   
       balance = await getBalance(accounts[i], CONFIG.tokenColor, rpc);
-      if (String(balance) === CONFIG.amountToSend) {
+      if (String(balance) === expectedBalance) {
           console.log('   Done');
       } else {
-          console.log('   Failed! Expected balance:', CONFIG.amountToSend, 'actual: ', String(balance));
+          console.log('   Failed! Expected balance:', expectedBalance, 'actual: ', String(balance));
       }
     } else {
       console.log(' Dry run mode enabled! Will not send tokens. Account balance:', String(balance));

@@ -7,7 +7,7 @@ var fs = require('fs');
 const URL = "https://planeta.leap.rocks";
 const HOWMANY = 25;
 const PATH = 'wallets';
-const BATCH = 'usa';
+const BATCH = 'usb';
 const workDir = process.cwd();
 const positions = { 
     x:[50, 200, 350], //absolute X and Y positions for sticker elemnts on page

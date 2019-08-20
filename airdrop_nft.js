@@ -16,12 +16,12 @@ const CONFIG = {
   },
   tokenColor: parseInt(process.env.COLOR) || NST_COLOR_BASE,
   queenUtxoNum: parseInt(process.env.QUEEN_UTXO) || 0,
-  queenId: '0xcbb18d83c09c99d8cfb5f0fad6febfb0d9a41fac9b165399982e43528e7c69db', //USB
-  //queenId: '0xa1f5da38474f60e5684a1e511e4668ff4f121c1bf4272cc129155fd2b88171a3',  //USA
+  //queenId: '0xcbb18d83c09c99d8cfb5f0fad6febfb0d9a41fac9b165399982e43528e7c69db', //USB
+  queenId: '0xa1f5da38474f60e5684a1e511e4668ff4f121c1bf4272cc129155fd2b88171a3',  //USA
   initData: "0x0000000000000000000000000000000000000000000000000000000000000000"
 };
 const folder = 'wallets';
-const batch = 'usb';
+const batch = 'usa';
 
 
 //use this to debug CONFIG

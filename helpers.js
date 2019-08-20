@@ -473,7 +473,7 @@ async function breed(to, queenId, utxoNum, color, data, wallet, dryRun = false) 
   
     let rsp = await wallet.provider.send('checkSpendingCondition', [condition.hex()]);
     //If gas price is not correct try to recreate with correct price
-    if (rsp.error && rsp.error.split("\"").slice(-4)[0] != String(BREED_GAS_COST)) {
+    if (rsp.error && rsp.error !== '[object Object]' && rsp.error.split("\"").slice(-4)[0] != String(BREED_GAS_COST)) {
         console.log('Adjusting gas price');
         condition = formBreedTx(
             [gasInput, queenInput], 

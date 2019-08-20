@@ -14,11 +14,11 @@ const CONFIG = {
     address: "0x"+ethereumjsutil.privateToAddress(process.env.SENDING_PK).toString('hex') 
   },
   tokenColor: 3,
-  amountToSend: '1000000000000000000',
+  amountToSend: '3000000000000000000',
   topUp: false //use this for adding funds to already funded wallets (account will not be checked if it has funds or not)
 };
 const folder = 'wallets';
-const batch = 'usb';
+const batch = 'usa';
 
 
 //use this to debug CONFIG
@@ -61,7 +61,7 @@ async function main() {
         txReceipt = await rpc.send("eth_getTransactionReceipt", [txHash]);   
         if(txReceipt) break;
       }
-      const expectedBalance = topUp ? String(JSBI.add(balance, JSBI.BigInt(CONFIG.amountToSend))) : CONFIG.amountToSend;   
+      const expectedBalance = CONFIG.topUp ? String(JSBI.add(balance, JSBI.BigInt(CONFIG.amountToSend))) : CONFIG.amountToSend;   
       balance = await getBalance(accounts[i], CONFIG.tokenColor, rpc);
       if (String(balance) === expectedBalance) {
           console.log('   Done');

@@ -17,8 +17,8 @@ const CONFIG = {
   amountToSend: '3000000000000000000',
   topUp: false //use this for adding funds to already funded wallets (account will not be checked if it has funds or not)
 };
-const folder = 'wallets';
-const batch = 'usa';
+const folder = 'wallets-ebt';
+const batch = 'pa6';
 
 
 //use this to debug CONFIG

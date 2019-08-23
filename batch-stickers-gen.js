@@ -5,9 +5,10 @@ var merge = require('easy-pdf-merge');
 var fs = require('fs');
 
 const URL = "https://planeta.leap.rocks";
-const HOWMANY = 25;
-const PATH = 'wallets';
-const BATCH = 'usb';
+const HOWMANY = 200;
+const PATH = 'wallets-ebt';
+const BATCH = 'pa1';
+const SAVE_PK = true;
 const workDir = process.cwd();
 const positions = { 
     x:[50, 200, 350], //absolute X and Y positions for sticker elemnts on page
@@ -34,7 +35,7 @@ async function generate() {
     const pages = Math.ceil(HOWMANY / perPage);
 
     for (let i = 0; i < HOWMANY; i++) {
-        accounts.push(generateWallet(URL, `./${PATH}`,BATCH));
+        accounts.push(generateWallet(URL, `./${PATH}`,BATCH, SAVE_PK));
     }
     let pageAccounts;
     let name;

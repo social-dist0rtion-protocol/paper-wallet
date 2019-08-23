@@ -59,7 +59,7 @@ async function sendFunds(from, to, amount, color, rpc) {
     return txHash;
 }
 
-function generateWallet(url, path = './wallets', batchName = '0') {
+function generateWallet(url, path = './wallets', batchName = '0', savePk = false) {
     const COMPRESS = true
     const AUTOPRINT = false
     const MINEFOR = false//"feeddeadbeef"
@@ -104,6 +104,9 @@ function generateWallet(url, path = './wallets', batchName = '0') {
     var fs = require('fs');
 
     fs.appendFile(`${path}/addresses-${batchName}.txt`,publicAddress+"\n", function (err) {
+        if (err) throw err;
+    });
+    if (savePk) fs.appendFile(`${path}/pkLinks-${batchName}.txt`,pkLink+"\n", function (err) {
         if (err) throw err;
     });
 
@@ -415,7 +418,7 @@ async function breed(to, queenId, utxoNum, color, data, wallet, dryRun = false) 
   
     
     const gasBalance = await getBalance(condAddr, 0, wallet.provider);
-    if (gasBalance < BREED_GAS_COST) throw new Error (`Not enough gas for breeding. Need: ${BREED_GAS_COST}, balance: ${gasBalance}`);
+    if (JSBI.LT(gasBalance, BREED_GAS_COST)) throw new Error (`Not enough gas for breeding. Need: ${BREED_GAS_COST}, balance: ${gasBalance}`);
     const gasUtxos = await getUtxos(condAddr, 0, wallet.provider);
     // todo: finish multiple gas utxos as inputs
     /*let gasInputs = [];
